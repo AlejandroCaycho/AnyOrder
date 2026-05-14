@@ -46,6 +46,14 @@ cloudinary:
   api-key: 973672632453524
   api-secret: TJU2HYli0JLnmYLSqEbvytBgNJ4
 
+external:
+  api:
+    token: ${CODART_API_TOKEN}
+    reniec:
+      url: ${RENIEC_API_URL}
+    sunat:
+      url: ${SUNAT_API_URL}
+
 server:
   port: 8080
 
