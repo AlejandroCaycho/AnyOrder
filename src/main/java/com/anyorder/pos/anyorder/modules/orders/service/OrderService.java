@@ -102,6 +102,51 @@ public class OrderService {
     }
 
     /**
+     * Agrega detalles a un pedido existente.
+     * Útil para pedidos adicionales en la misma mesa (incluyendo QR).
+     */
+    @Transactional
+    public Order addDetails(Integer orderId, List<OrderDetail> newDetails) {
+        Order order = findById(orderId);
+
+        if (order.getOrderStatus() == Order.OrderStatus.CERRADO || 
+            order.getOrderStatus() == Order.OrderStatus.CANCELADO) {
+            throw new RuntimeException("No se pueden agregar ítems a un pedido cerrado o cancelado");
+        }
+
+        // Si el pedido ya estaba confirmado, debemos verificar stock y descontarlo inmediatamente para estos nuevos ítems
+        if (order.getConfirmed()) {
+            Map<Integer, BigDecimal> stockRequerido = calcularStockRequerido(newDetails);
+            verificarStockDisponible(stockRequerido);
+            
+            // Procesar y guardar detalles
+            procesarDetalles(order, newDetails);
+            
+            // Descontar stock solo para los nuevos detalles (un poco complejo sin tracking de qué se descontó)
+            // Para simplificar, descontamos stock de los nuevos ítems manualmente aquí
+            for (OrderDetail detail : newDetails) {
+                List<PresentationIngredient> pis = presentationIngredientService
+                        .findByPresentationId(detail.getPresentation().getIdPresentation());
+
+                for (PresentationIngredient pi : pis) {
+                    Ingredient ingredient = ingredientRepository.findById(pi.getIngredient().getIdIngredient())
+                            .orElseThrow(() -> new RuntimeException("Ingrediente no encontrado"));
+
+                    BigDecimal cantidad = pi.getQuantity().multiply(new BigDecimal(detail.getAmount()));
+                    String reason = "Adición Pedido #" + order.getIdOrder() + " - " + detail.getPresentation().getName();
+
+                    inventoryService.registerSalida(ingredient, cantidad, order.getUser(), reason);
+                }
+            }
+        } else {
+            // Si no estaba confirmado, solo agregamos los detalles (se descontarán al confirmar el pedido completo)
+            procesarDetalles(order, newDetails);
+        }
+
+        return order;
+    }
+
+    /**
      * Confirma el pedido: descuenta stock de ingredientes y pasa a EN_PREPARACION.
      * Registra movimientos de inventario (SALIDA) por cada ingrediente consumido.
      */

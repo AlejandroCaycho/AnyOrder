@@ -8,5 +8,10 @@ import java.util.List;
 
 @Repository
 public interface QrOrderRepository extends JpaRepository<QrOrder, Integer> {
+    
     List<QrOrder> findBySession_IdSession(Integer idSession);
+    
+    List<QrOrder> findBySession_SessionToken(String token);
+    
+    List<QrOrder> findByOrderStatus(QrOrder.QrOrderStatus status);
 }

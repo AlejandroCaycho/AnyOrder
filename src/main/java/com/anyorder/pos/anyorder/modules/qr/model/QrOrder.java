@@ -2,6 +2,7 @@ package com.anyorder.pos.anyorder.modules.qr.model;
 
 import com.anyorder.pos.anyorder.modules.presentations.model.Presentation;
 import com.anyorder.pos.anyorder.modules.users.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Representa un pedido realizado desde una sesión QR.
+ * Debe ser confirmado por el personal para integrarse al flujo normal de pedidos.
+ */
 @Entity
 @Table(name = "QR_ORDERS")
 @Data
@@ -27,11 +32,13 @@ public class QrOrder {
     @NotNull(message = "La sesión es obligatoria")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_SESSION", nullable = false)
+    @JsonIgnoreProperties({"table", "customer", "sessionToken"})
     private QrSession session;
 
     @NotNull(message = "La presentación es obligatoria")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_PRESENTATION", nullable = false)
+    @JsonIgnoreProperties({"product", "ingredients", "state", "createdAt"})
     private Presentation presentation;
 
     @NotNull(message = "La cantidad es obligatoria")
@@ -60,6 +67,7 @@ public class QrOrder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CONFIRMED_BY")
+    @JsonIgnoreProperties({"password", "area", "role", "state", "createdAt"})
     private User confirmedBy;
 
     @CreationTimestamp
@@ -68,6 +76,11 @@ public class QrOrder {
 
     @Column(name = "CONFIRMED_AT")
     private LocalDateTime confirmedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.orderStatus == null) this.orderStatus = QrOrderStatus.PENDIENTE;
+    }
 
     public enum QrOrderStatus {
         PENDIENTE, CONFIRMADO, CANCELADO

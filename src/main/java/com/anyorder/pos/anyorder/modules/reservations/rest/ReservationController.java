@@ -3,30 +3,42 @@ package com.anyorder.pos.anyorder.modules.reservations.rest;
 import com.anyorder.pos.anyorder.modules.reservations.model.Reservation;
 import com.anyorder.pos.anyorder.modules.reservations.service.ReservationService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ReservationController {
 
-    @Autowired
-    private ReservationService reservationService;
+    private final ReservationService reservationService;
 
     @GetMapping
     public ResponseEntity<List<Reservation>> getAll() {
         return ResponseEntity.ok(reservationService.findAll());
     }
 
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Reservation>> getUpcoming() {
+        return ResponseEntity.ok(reservationService.findUpcoming());
+    }
+
+    @GetMapping("/range")
+    public ResponseEntity<List<Reservation>> getByRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return ResponseEntity.ok(reservationService.findByDateRange(start, end));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getById(@PathVariable Integer id) {
-        return reservationService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(reservationService.findById(id));
     }
 
     @PostMapping
@@ -39,5 +51,11 @@ public class ReservationController {
             @PathVariable Integer id,
             @RequestParam Reservation.ReservationStatus status) {
         return ResponseEntity.ok(reservationService.updateStatus(id, status));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancel(@PathVariable Integer id) {
+        reservationService.cancel(id);
+        return ResponseEntity.noContent().build();
     }
 }

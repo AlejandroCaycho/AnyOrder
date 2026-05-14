@@ -3,17 +3,19 @@ package com.anyorder.pos.anyorder.modules.reservations.model;
 import com.anyorder.pos.anyorder.modules.customers.model.Customer;
 import com.anyorder.pos.anyorder.modules.tables.model.Tables;
 import com.anyorder.pos.anyorder.modules.users.model.User;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa una reservación de mesa por un cliente.
+ */
 @Entity
 @Table(name = "RESERVATIONS")
 @Data
@@ -29,15 +31,13 @@ public class Reservation {
     @NotNull(message = "El cliente es obligatorio")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_CUSTOMER", nullable = false)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idCustomer")
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIgnoreProperties({"role", "state", "createdAt"})
     private Customer customer;
 
     @NotNull(message = "La mesa es obligatoria")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_TABLE", nullable = false)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idTable")
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIgnoreProperties({"area", "occupiedSince", "currentOccupancy"})
     private Tables table;
 
     @NotNull(message = "La fecha de reservación es obligatoria")
@@ -50,9 +50,13 @@ public class Reservation {
     @Column(name = "NUMBER_OF_PEOPLE", nullable = false)
     private Integer numberOfPeople;
 
+    @NotBlank(message = "El nombre del cliente es obligatorio")
+    @Size(max = 200)
     @Column(name = "CUSTOMER_NAME", nullable = false, length = 200)
     private String customerName;
 
+    @NotBlank(message = "El teléfono del cliente es obligatorio")
+    @Size(max = 20)
     @Column(name = "CUSTOMER_PHONE", nullable = false, length = 20)
     private String customerPhone;
 
@@ -67,10 +71,10 @@ public class Reservation {
     @NotNull(message = "El usuario creador es obligatorio")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CREATED_BY", nullable = false)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idUser")
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIgnoreProperties({"password", "area", "role", "state", "createdAt"})
     private User createdBy;
 
+    @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -79,7 +83,6 @@ public class Reservation {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
         if (this.reservationStatus == null) {
             this.reservationStatus = ReservationStatus.PENDIENTE;
         }
