@@ -2,7 +2,6 @@ package com.anyorder.pos.anyorder.modules.reniec.service;
 
 import com.anyorder.pos.anyorder.modules.reniec.model.ReniecData;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -13,15 +12,11 @@ import org.springframework.web.client.RestTemplate;
 public class ReniecService {
 
     private final RestTemplate restTemplate;
-    private final String url;
-    private final String token;
+    private final com.anyorder.pos.anyorder.config.ExternalConfig externalConfig;
 
-    public ReniecService(RestTemplate restTemplate, 
-                         @Value("${external.api.reniec.url}") String url, 
-                         @Value("${external.api.token}") String token) {
+    public ReniecService(RestTemplate restTemplate, com.anyorder.pos.anyorder.config.ExternalConfig externalConfig) {
         this.restTemplate = restTemplate;
-        this.url = url;
-        this.token = token;
+        this.externalConfig = externalConfig;
     }
 
     public ReniecData consultarDni(String dni) {
@@ -29,10 +24,10 @@ public class ReniecService {
             throw new IllegalArgumentException("DNI inválido. Debe tener 8 dígitos.");
         }
 
-        String finalUrl = this.url + "/" + dni;
+        String finalUrl = externalConfig.getApi().getReniec().getUrl() + "/" + dni;
         
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
+        headers.set("Authorization", "Bearer " + externalConfig.getApi().getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);

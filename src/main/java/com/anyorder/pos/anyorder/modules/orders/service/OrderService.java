@@ -36,9 +36,6 @@ public class OrderService {
     private final TablesService tablesService;
     private final InventoryService inventoryService;
 
-    // =========================================================
-    // CRUD BÁSICO
-    // =========================================================
 
     @Transactional(readOnly = true)
     public List<Order> findAll() {
@@ -66,9 +63,6 @@ public class OrderService {
         return orderRepository.findByCustomer_IdCustomer(customerId);
     }
 
-    // =========================================================
-    // FLUJO PRINCIPAL
-    // =========================================================
 
     /**
      * Crea un pedido nuevo (PENDIENTE).
@@ -232,9 +226,6 @@ public class OrderService {
         log.info("Pedido #{} cancelado", id);
     }
 
-    // =========================================================
-    // LÓGICA INTERNA
-    // =========================================================
 
     private void validateBasicData(Order order) {
         if (order.getUser() == null || order.getUser().getIdUser() == null) {

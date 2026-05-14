@@ -2,7 +2,6 @@ package com.anyorder.pos.anyorder.modules.sunat.service;
 
 import com.anyorder.pos.anyorder.modules.sunat.model.SunatData;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -13,15 +12,11 @@ import org.springframework.web.client.RestTemplate;
 public class SunatService {
 
     private final RestTemplate restTemplate;
-    private final String url;
-    private final String token;
+    private final com.anyorder.pos.anyorder.config.ExternalConfig externalConfig;
 
-    public SunatService(RestTemplate restTemplate, 
-                         @Value("${external.api.sunat.url}") String url, 
-                         @Value("${external.api.token}") String token) {
+    public SunatService(RestTemplate restTemplate, com.anyorder.pos.anyorder.config.ExternalConfig externalConfig) {
         this.restTemplate = restTemplate;
-        this.url = url;
-        this.token = token;
+        this.externalConfig = externalConfig;
     }
 
     public SunatData consultarRuc(String ruc) {
@@ -29,10 +24,10 @@ public class SunatService {
             throw new IllegalArgumentException("RUC inválido. Debe tener 11 dígitos.");
         }
 
-        String finalUrl = this.url + "/" + ruc;
+        String finalUrl = externalConfig.getApi().getSunat().getUrl() + "/" + ruc;
         
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
+        headers.set("Authorization", "Bearer " + externalConfig.getApi().getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);

@@ -7,9 +7,9 @@ spring:
     log-startup-info: false
 
   datasource:
-    url: jdbc:mysql://localhost:3306/AnyOrder?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: ${DB_URL:jdbc:mysql://localhost:3306/AnyOrder?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true}
+    username: ${DB_USER:root}
+    password: ${DB_PASS:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       initialization-fail-timeout: 1
@@ -33,31 +33,29 @@ spring:
       write-dates-as-timestamps: false
       indent-output: true
 
-  # Configuración para archivos multipart (imágenes)
   servlet:
     multipart:
       enabled: true
       max-file-size: 5MB
       max-request-size: 5MB
 
-# Configuración de Cloudinary
-cloudinary:
-  cloud-name: dwy6gb0gn
-  api-key: 973672632453524
-  api-secret: TJU2HYli0JLnmYLSqEbvytBgNJ4
-
+# Configuración de servicios externos
 external:
   api:
-    token: ${CODART_API_TOKEN}
+    token: ${EXTERNAL_API_TOKEN:none}
     reniec:
-      url: ${RENIEC_API_URL}
+      url: ${RENIEC_API_URL:https://api.apis.net.pe/v2/reniec/dni}
     sunat:
-      url: ${SUNAT_API_URL}
+      url: ${SUNAT_API_URL:https://api.apis.net.pe/v2/sunat/ruc}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:none}
+    api-key: ${CLOUDINARY_API_KEY:none}
+    api-secret: ${CLOUDINARY_API_SECRET:none}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 logging:
   level:
     root: ERROR
-    com.anyorder.pos.anyorder: INFO
+    "[com.anyorder.pos.anyorder]": INFO

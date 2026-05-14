@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.anyorder.pos.anyorder.util.TokenGenerator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class QrSessionService {
         session.setTable(table);
         session.setCustomerName(customerName);
         session.setNumberOfPeople(numberOfPeople != null ? numberOfPeople : 1);
-        session.setSessionToken(UUID.randomUUID().toString());
+        session.setSessionToken(TokenGenerator.generateToken());
         session.setSessionStatus(QrSession.SessionStatus.ACTIVA);
         
         if (idCustomer != null) {
@@ -92,9 +92,6 @@ public class QrSessionService {
             s.setSessionStatus(QrSession.SessionStatus.CERRADA);
             s.setClosedAt(LocalDateTime.now());
             qrSessionRepository.save(s);
-            
-            // Note: We might want to NOT free the table automatically if there's still an active Order
-            // But usually closing the QR session means the customer is done ordering.
         });
     }
 

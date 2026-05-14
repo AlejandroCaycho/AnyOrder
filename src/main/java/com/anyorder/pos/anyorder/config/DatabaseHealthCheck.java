@@ -1,12 +1,18 @@
 package com.anyorder.pos.anyorder.config;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 
+/**
+ * Verifica la conexión a la base de datos al iniciar la aplicación.
+ * Detiene la ejecución si no se puede establecer una conexión válida.
+ */
 @Component
+@Slf4j
 public class DatabaseHealthCheck {
 
     private final DataSource dataSource;
@@ -18,20 +24,18 @@ public class DatabaseHealthCheck {
     @PostConstruct
     public void checkDatabase() {
         try (Connection conn = dataSource.getConnection()) {
-            System.out.println("Conectado a MySQL");
+            log.info("Conexión a la base de datos establecida correctamente.");
         } catch (Exception e) {
             String msg = e.getMessage();
 
             if (msg.contains("Access denied")) {
-                System.err.println("\nERROR: Usuario o contraseña incorrectos");
+                log.error("Error de acceso: Usuario o contraseña de base de datos incorrectos.");
             } else if (msg.contains("Unknown database")) {
-                System.err.println("\nERROR: Base de datos 'AnyOrder' no existe");
+                log.error("Error: La base de datos especificada no existe.");
             } else if (msg.contains("Communications link failure")) {
-                System.err.println("\nERROR: No se puede conectar - MySQL no está corriendo o puerto incorrecto");
-            } else if (msg.contains("No suitable driver")) {
-                System.err.println("\nERROR: Driver MySQL no encontrado");
+                log.error("Error de comunicación: MySQL no está en ejecución o el puerto es incorrecto.");
             } else {
-                System.err.println("\nERROR: " + msg);
+                log.error("Error crítico al conectar a la base de datos: {}", msg);
             }
 
             System.exit(1);

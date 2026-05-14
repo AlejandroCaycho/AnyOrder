@@ -23,18 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Servicio de ventas.
- *
- * Flujo principal:
- *   1. El mozo crea el pedido (PENDIENTE)
- *   2. Cocina lo confirma → stock se descuenta (EN_PREPARACION)
- *   3. Cocina lo marca LISTO
- *   4. Mozo lo entrega (ENTREGADO)
- *   5. Caja cobra: se crea la Sale con los pagos → Pedido pasa a CERRADO
- *
- * Casos de pago:
- *   a) Pago de UN pedido por ID
- *   b) Pago de TODOS los pedidos ENTREGADOS de un cliente
+ * Servicio de ventas que gestiona el ciclo de cobro de pedidos.
  */
 @Service
 @RequiredArgsConstructor
@@ -49,9 +38,6 @@ public class SaleService {
     private final CustomerService customerService;
     private final TablesService tablesService;
 
-    // =========================================================
-    // CONSULTAS
-    // =========================================================
 
     @Transactional(readOnly = true)
     public List<Sale> findAll() {
@@ -96,9 +82,6 @@ public class SaleService {
         return saleRepository.findMostSoldPresentations();
     }
 
-    // =========================================================
-    // COBRAR UN PEDIDO ESPECÍFICO
-    // =========================================================
 
     /**
      * Crea una venta para un pedido específico (ID de orden en sale.order).
@@ -129,9 +112,6 @@ public class SaleService {
         return saved;
     }
 
-    // =========================================================
-    // COBRAR TODOS LOS PEDIDOS DE UN CLIENTE
-    // =========================================================
 
     /**
      * Cobra todos los pedidos ENTREGADOS de un cliente en una sola venta.
@@ -183,9 +163,6 @@ public class SaleService {
         return savedSale;
     }
 
-    // =========================================================
-    // ANULAR UNA VENTA
-    // =========================================================
 
     /**
      * Anula una venta VIGENTE. Cambia state a 0 (ANULADA).
@@ -204,10 +181,6 @@ public class SaleService {
         log.info("Venta #{} anulada", id);
         return saleRepository.save(sale);
     }
-
-    // =========================================================
-    // LÓGICA INTERNA
-    // =========================================================
 
     private void validateOrderForSale(Order order) {
         if (order.getOrderStatus() != Order.OrderStatus.ENTREGADO) {
