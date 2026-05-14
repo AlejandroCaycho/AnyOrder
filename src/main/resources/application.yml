@@ -7,9 +7,9 @@ spring:
     log-startup-info: false
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/AnyOrder?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true}
-    username: ${DB_USER:root}
-    password: ${DB_PASS:123456}
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       initialization-fail-timeout: 1
@@ -42,18 +42,18 @@ spring:
 # Configuración de servicios externos
 external:
   api:
-    token: ${EXTERNAL_API_TOKEN:none}
+    token: ${EXTERNAL_API_TOKEN}
     reniec:
-      url: ${RENIEC_API_URL:https://api.apis.net.pe/v2/reniec/dni}
+      url: ${RENIEC_API_URL}
     sunat:
-      url: ${SUNAT_API_URL:https://api.apis.net.pe/v2/sunat/ruc}
+      url: ${SUNAT_API_URL}
   cloudinary:
-    cloud-name: ${CLOUDINARY_CLOUD_NAME:none}
-    api-key: ${CLOUDINARY_API_KEY:none}
-    api-secret: ${CLOUDINARY_API_SECRET:none}
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    api-key: ${CLOUDINARY_API_KEY}
+    api-secret: ${CLOUDINARY_API_SECRET}
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT}
 
 logging:
   level:
