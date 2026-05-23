@@ -33,6 +33,10 @@ public class CustomerService {
         return customerRepository.findByDocumentNumber(documentNumber);
     }
 
+    public Optional<Customer> findByPhone(String phone) {
+        return customerRepository.findByPhone(phone);
+    }
+
     @Transactional
     public Customer create(Customer customer) {
         if (customerRepository.existsByDocumentNumber(customer.getDocumentNumber())) {

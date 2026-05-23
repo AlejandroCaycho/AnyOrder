@@ -1,10 +1,7 @@
 package com.anyorder.pos.anyorder.modules.customers.model;
 
 import com.anyorder.pos.anyorder.modules.roles.model.Role;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "CUSTOMERS")
@@ -64,11 +62,10 @@ public class Customer {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_ROLE")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idRole")
-    @JsonIdentityReference(alwaysAsId = true)
     private Role role;
 
     @Column(name = "LAST_PURCHASE_DATE")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastPurchaseDate;
 
     @Column(name = "TOTAL_PURCHASES", nullable = false)
@@ -81,6 +78,7 @@ public class Customer {
     private Boolean state = true;
 
     @Column(name = "CREATED_AT")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @PrePersist

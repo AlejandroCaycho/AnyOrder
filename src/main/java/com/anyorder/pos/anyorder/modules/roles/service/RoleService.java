@@ -2,6 +2,8 @@ package com.anyorder.pos.anyorder.modules.roles.service;
 
 import com.anyorder.pos.anyorder.modules.roles.model.Role;
 import com.anyorder.pos.anyorder.modules.roles.repository.RoleRepository;
+import com.anyorder.pos.anyorder.modules.permissions.model.Permission;
+import com.anyorder.pos.anyorder.modules.permissions.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,9 @@ public class RoleService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PermissionRepository permissionRepository;
 
     public List<Role> findAll() {
         return roleRepository.findAll();
@@ -81,6 +86,28 @@ public class RoleService {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
         role.setState(true);
+        return roleRepository.save(role);
+    }
+
+    @Transactional
+    public Role assignPermission(Integer roleId, Integer permissionId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + roleId));
+        Permission permission = permissionRepository.findById(permissionId)
+                .orElseThrow(() -> new RuntimeException("Permiso no encontrado con ID: " + permissionId));
+
+        role.getPermissions().add(permission);
+        return roleRepository.save(role);
+    }
+
+    @Transactional
+    public Role removePermission(Integer roleId, Integer permissionId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + roleId));
+        Permission permission = permissionRepository.findById(permissionId)
+                .orElseThrow(() -> new RuntimeException("Permiso no encontrado con ID: " + permissionId));
+
+        role.getPermissions().remove(permission);
         return roleRepository.save(role);
     }
 }

@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Un pago individual dentro de una venta.
@@ -87,6 +88,7 @@ public class SalePayment {
 
     @CreationTimestamp
     @Column(name = "PAYMENT_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime paymentDate;
 
     public enum PaymentType {

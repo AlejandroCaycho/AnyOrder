@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Duration;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "USER_LOGS")
@@ -34,13 +35,16 @@ public class UserLog {
 
     @NotNull(message = "La fecha es obligatoria")
     @Column(name = "FECHA", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fecha;
 
     @NotNull(message = "La hora de entrada es obligatoria")
     @Column(name = "HORA_ENTRADA", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime horaEntrada;
 
     @Column(name = "HORA_SALIDA")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime horaSalida;
 
     @DecimalMin(value = "0.0", message = "Las horas trabajadas deben ser >= 0")

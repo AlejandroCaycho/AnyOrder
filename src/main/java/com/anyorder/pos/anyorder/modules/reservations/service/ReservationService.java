@@ -67,6 +67,19 @@ public class ReservationService {
     }
 
     @Transactional
+    public Reservation update(Integer id, Reservation updated) {
+        Reservation existing = findById(id);
+        existing.setCustomerName(updated.getCustomerName());
+        existing.setCustomerPhone(updated.getCustomerPhone());
+        existing.setNumberOfPeople(updated.getNumberOfPeople());
+        existing.setReservationDate(updated.getReservationDate());
+        existing.setTable(updated.getTable());
+        existing.setNotes(updated.getNotes());
+        existing.setSpecialRequests(updated.getSpecialRequests());
+        return reservationRepository.save(existing);
+    }
+
+    @Transactional
     public void cancel(Integer id) {
         Reservation reservation = findById(id);
         reservation.setReservationStatus(Reservation.ReservationStatus.CANCELADA);
@@ -93,6 +106,18 @@ public class ReservationService {
         Tables table = tablesService.findById(r.getTable().getIdTable())
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada"));
         
+        if (!table.getState()) {
+            throw new RuntimeException("No se puede reservar una mesa inactiva");
+        }
+
+        if (!table.getArea().getState()) {
+            throw new RuntimeException("El área seleccionada se encuentra inactiva");
+        }
+
+        if (table.getIsOccupied()) {
+            throw new RuntimeException("La mesa ya se encuentra ocupada");
+        }
+
         if (r.getNumberOfPeople() > table.getCapacity()) {
             throw new RuntimeException("El número de personas excede la capacidad de la mesa (" + table.getCapacity() + ")");
         }

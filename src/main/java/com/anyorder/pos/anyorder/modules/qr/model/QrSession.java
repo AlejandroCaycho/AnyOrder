@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Representa una sesión activa de un cliente en una mesa mediante QR.
@@ -61,12 +62,15 @@ public class QrSession {
 
     @CreationTimestamp
     @Column(name = "STARTED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startedAt;
 
     @Column(name = "CLOSED_AT")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime closedAt;
 
     @Column(name = "EXPIRES_AT")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiresAt;
 
     @PrePersist

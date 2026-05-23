@@ -67,9 +67,8 @@ public class User {
     @Column(name = "PHONE", nullable = false, length = 20)
     private String phone;
 
-    @NotBlank(message = "La dirección es obligatoria")
     @Size(max = 255)
-    @Column(name = "ADRESS", nullable = false, length = 255)
+    @Column(name = "ADRESS", nullable = true, length = 255)
     private String adress;
 
     @Column(name = "PROFILE_PHOTO", length = 255)
@@ -77,6 +76,7 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "REGISTRATION_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registrationDate;
 
     @Column(name = "STATE", nullable = false)
@@ -94,12 +94,12 @@ public class User {
 
     @NotNull(message = "La hora de inicio es obligatoria")
     @Column(name = "HORA_INICIO", nullable = false)
-    @JsonFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaInicio;
 
     @NotNull(message = "La hora de fin es obligatoria")
     @Column(name = "HORA_FIN", nullable = false)
-    @JsonFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaFin;
 
     @NotNull(message = "Las horas planificadas son obligatorias")

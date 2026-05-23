@@ -2,6 +2,7 @@ package com.anyorder.pos.anyorder.modules.tables.service;
 
 import com.anyorder.pos.anyorder.modules.tables.model.Tables;
 import com.anyorder.pos.anyorder.modules.tables.repository.TablesRepository;
+import com.anyorder.pos.anyorder.modules.areas.model.Area;
 import com.anyorder.pos.anyorder.modules.areas.repository.AreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,12 +39,18 @@ public class TablesService {
 
     @Transactional
     public Tables create(Tables table) {
-        if (tablesRepository.existsByName(table.getName())) {
+        if (tablesRepository.existsByNameTable(table.getNameTable())) {
             throw new IllegalArgumentException("Ya existe una mesa con ese nombre");
         }
-        if (!areaRepository.existsById(table.getIdArea())) {
-            throw new IllegalArgumentException("El área especificada no existe");
+        
+        Area area = areaRepository.findById(table.getIdArea())
+                .orElseThrow(() -> new IllegalArgumentException("El área especificada no existe"));
+        
+        if (table.getState() != null && table.getState() && !area.getState()) {
+            area.setState(true);
+            areaRepository.save(area);
         }
+
         return tablesRepository.save(table);
     }
 
@@ -52,17 +59,22 @@ public class TablesService {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada con ID: " + id));
 
-        if (!table.getName().equals(tableDetails.getName()) &&
-                tablesRepository.existsByName(tableDetails.getName())) {
+        if (!table.getNameTable().equals(tableDetails.getNameTable()) &&
+                tablesRepository.existsByNameTable(tableDetails.getNameTable())) {
             throw new IllegalArgumentException("Ya existe una mesa con ese nombre");
         }
 
-        if (!areaRepository.existsById(tableDetails.getIdArea())) {
-            throw new IllegalArgumentException("El área especificada no existe");
+        Area area = areaRepository.findById(tableDetails.getIdArea())
+                .orElseThrow(() -> new IllegalArgumentException("El área especificada no existe"));
+
+        // Si se intenta activar o mantener activa una mesa en un área inactiva, activamos el área automáticamente
+        if (tableDetails.getState() != null && tableDetails.getState() && !area.getState()) {
+            area.setState(true);
+            areaRepository.save(area);
         }
 
-        table.setName(tableDetails.getName());
-        table.setArea(areaRepository.findById(tableDetails.getIdArea()).get());
+        table.setNameTable(tableDetails.getNameTable());
+        table.setArea(area);
         table.setCapacity(tableDetails.getCapacity());
         table.setLocation(tableDetails.getLocation());
         table.setState(tableDetails.getState());
@@ -79,9 +91,24 @@ public class TablesService {
     }
 
     @Transactional
+    public void hardDelete(Integer id) {
+        if (!tablesRepository.existsById(id)) {
+            throw new RuntimeException("Mesa no encontrada con ID: " + id);
+        }
+        tablesRepository.deleteById(id);
+    }
+
+    @Transactional
     public Tables activate(Integer id) {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada con ID: " + id));
+        
+        Area area = table.getArea();
+        if (!area.getState()) {
+            area.setState(true);
+            areaRepository.save(area);
+        }
+        
         table.setState(true);
         return tablesRepository.save(table);
     }
@@ -119,5 +146,10 @@ public class TablesService {
             }
             tablesRepository.save(table);
         });
+    }
+
+    @Transactional
+    public Tables save(Tables table) {
+        return tablesRepository.save(table);
     }
 }

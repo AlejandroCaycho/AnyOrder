@@ -7,10 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "CATEGORIES")
@@ -49,9 +50,10 @@ public class Category {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @JsonManagedReference("category-products")
+    @JsonIgnoreProperties("category")
     private List<Product> products;
 }

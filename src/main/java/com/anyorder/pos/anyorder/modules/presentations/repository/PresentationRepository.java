@@ -13,11 +13,11 @@ public interface PresentationRepository extends JpaRepository<Presentation, Inte
 
     List<Presentation> findByStateTrue();
 
-    List<Presentation> findByIdProduct(Integer idProduct);
+    List<Presentation> findByProduct_IdProduct(Integer idProduct);
 
-    List<Presentation> findByIdProductAndStateTrue(Integer idProduct);
+    List<Presentation> findByProduct_IdProductAndStateTrue(Integer idProduct);
 
-    @Query("SELECT p.idPresentation FROM Presentation p WHERE p.idProduct = :idProduct")
+    @Query("SELECT p.idPresentation FROM Presentation p WHERE p.product.idProduct = :idProduct")
     List<Integer> findIdsByProduct(@Param("idProduct") Integer idProduct);
 
     List<Presentation> findByNameContainingIgnoreCase(String name);

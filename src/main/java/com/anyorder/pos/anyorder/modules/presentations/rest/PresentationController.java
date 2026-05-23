@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -108,6 +109,26 @@ public class PresentationController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(createErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<?> uploadPhoto(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
+        try {
+            Presentation updated = presentationService.uploadPhoto(id, file);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}/photo")
+    public ResponseEntity<?> deletePhoto(@PathVariable Integer id) {
+        try {
+            presentationService.deletePhoto(id);
+            return ResponseEntity.ok(createSuccessResponse("Imagen eliminada"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         }
     }
 

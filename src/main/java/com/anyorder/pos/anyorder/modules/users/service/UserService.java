@@ -9,7 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -166,6 +170,98 @@ public class UserService {
         if (!existingUser.getDocumentNumber().equals(userDetails.getDocumentNumber()) &&
                 userRepository.existsByDocumentNumber(userDetails.getDocumentNumber())) {
             throw new IllegalArgumentException("El nuevo número de documento ya está registrado");
+        }
+    }
+
+    @Transactional
+    public User uploadPhoto(Integer id, MultipartFile file) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("El archivo no puede estar vacío");
+        }
+
+        try {
+            // Get original extension
+            String originalFilename = file.getOriginalFilename();
+            String extension = "png"; // default
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            }
+
+            // Generate clean filename: user_{idUser}_{timestamp}.{extension}
+            String filename = "user_" + id + "_" + System.currentTimeMillis() + "." + extension;
+
+            // Paths to write - robust detection of multi-module/parent working directory
+            String projectPath = System.getProperty("user.dir");
+            File baseDir = new File(projectPath);
+            if (new File(baseDir, "AnyOrder-be").exists()) {
+                baseDir = new File(baseDir, "AnyOrder-be");
+            }
+            File srcDir = new File(baseDir, "src/main/resources/static/usuarios");
+            File targetDir = new File(baseDir, "target/classes/static/usuarios");
+
+            // Ensure directories exist
+            if (!srcDir.exists()) srcDir.mkdirs();
+            if (!targetDir.exists()) targetDir.mkdirs();
+
+            // Delete old photo if it exists
+            if (user.getProfilePhoto() != null) {
+                String oldPhotoPath = user.getProfilePhoto();
+                if (oldPhotoPath.startsWith("/usuarios/")) {
+                    String oldFilename = oldPhotoPath.substring("/usuarios/".length());
+                    new File(srcDir, oldFilename).delete();
+                    new File(targetDir, oldFilename).delete();
+                }
+            }
+
+            // Copy file to src and target
+            File srcFile = new File(srcDir, filename);
+            File targetFile = new File(targetDir, filename);
+
+            // Copy once from input stream to physical src folder
+            Files.copy(file.getInputStream(), srcFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            
+            // Replicate from src file to target compiled folder to avoid stream consumption issues
+            try {
+                Files.copy(srcFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e) {
+                // Ignore target copy failures if classes folder doesn't exist yet
+            }
+
+            // Set user profile photo path (relative URL)
+            user.setProfilePhoto("/usuarios/" + filename);
+            return userRepository.save(user);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar la foto de perfil: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void deletePhoto(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (user.getProfilePhoto() != null) {
+            try {
+                String photoPath = user.getProfilePhoto();
+                if (photoPath.startsWith("/usuarios/")) {
+                    String filename = photoPath.substring("/usuarios/".length());
+                    String projectPath = System.getProperty("user.dir");
+                    File baseDir = new File(projectPath);
+                    if (new File(baseDir, "AnyOrder-be").exists()) {
+                        baseDir = new File(baseDir, "AnyOrder-be");
+                    }
+                    new File(new File(baseDir, "src/main/resources/static/usuarios"), filename).delete();
+                    new File(new File(baseDir, "target/classes/static/usuarios"), filename).delete();
+                }
+            } catch (Exception e) {
+                log.error("Error al eliminar archivo físico de foto de perfil", e);
+            }
+            user.setProfilePhoto(null);
+            userRepository.save(user);
         }
     }
 }

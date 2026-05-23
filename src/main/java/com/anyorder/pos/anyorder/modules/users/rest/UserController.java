@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -68,8 +69,8 @@ public class UserController {
 
     @GetMapping("/search/date")
     public ResponseEntity<List<User>> getByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end) {
         return ResponseEntity.ok(userService.findByDateRange(start, end));
     }
 
@@ -98,7 +99,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User user) {
         try {
             return ResponseEntity.ok(userService.update(id, user));
         } catch (Exception e) {
@@ -115,6 +116,26 @@ public class UserController {
     @PatchMapping("/{id}/activate")
     public ResponseEntity<?> activateUser(@PathVariable Integer id) {
         return ResponseEntity.ok(userService.activate(id));
+    }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<?> uploadPhoto(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
+        try {
+            User updatedUser = userService.uploadPhoto(id, file);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}/photo")
+    public ResponseEntity<?> deletePhoto(@PathVariable Integer id) {
+        try {
+            userService.deletePhoto(id);
+            return ResponseEntity.ok(createSuccessResponse("Foto de perfil eliminada"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
+        }
     }
 
     private Map<String, String> createErrorResponse(String message) {

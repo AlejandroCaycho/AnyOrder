@@ -101,6 +101,28 @@ public class RoleController {
         }
     }
 
+    @PostMapping("/{roleId}/permissions/{permissionId}")
+    public ResponseEntity<?> assignPermission(@PathVariable Integer roleId, @PathVariable Integer permissionId) {
+        try {
+            Role role = roleService.assignPermission(roleId, permissionId);
+            return ResponseEntity.ok(role);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{roleId}/permissions/{permissionId}")
+    public ResponseEntity<?> removePermission(@PathVariable Integer roleId, @PathVariable Integer permissionId) {
+        try {
+            Role role = roleService.removePermission(roleId, permissionId);
+            return ResponseEntity.ok(role);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse(e.getMessage()));
+        }
+    }
+
     private Map<String, String> createErrorResponse(String message) {
         Map<String, String> response = new HashMap<>();
         response.put("error", message);

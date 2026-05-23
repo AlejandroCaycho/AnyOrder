@@ -83,13 +83,17 @@ public class OrderService {
         Map<Integer, BigDecimal> stockRequerido = calcularStockRequerido(order.getDetails());
         verificarStockDisponible(stockRequerido);
 
+        // Extraer detalles para procesarlos manualmente y evitar fallos de cascada (subtotal null)
+        List<OrderDetail> details = order.getDetails();
+        order.setDetails(new java.util.ArrayList<>());
+
         order.setTotal(BigDecimal.ZERO);
         order.setTotalItems(0);
         order.setOrderStatus(Order.OrderStatus.PENDIENTE);
         order.setConfirmed(false);
 
         Order saved = orderRepository.save(order);
-        procesarDetalles(saved, order.getDetails());
+        procesarDetalles(saved, details);
 
         log.info("Pedido #{} creado con total {}", saved.getIdOrder(), saved.getTotal());
         return saved;
@@ -256,6 +260,9 @@ public class OrderService {
         if (!table.getState()) {
             throw new RuntimeException("La mesa no está activa");
         }
+        if (!table.getArea().getState()) {
+            throw new RuntimeException("El área de la mesa se encuentra inactiva");
+        }
         if (table.getIsOccupied()) {
             throw new RuntimeException("La mesa ya está ocupada");
         }
@@ -350,6 +357,8 @@ public class OrderService {
             detail.setSubtotal(price.multiply(new BigDecimal(detail.getAmount())));
 
             detailRepository.save(detail);
+            if (saved.getDetails() == null) saved.setDetails(new java.util.ArrayList<>());
+            saved.getDetails().add(detail);
 
             totalAmount = totalAmount.add(detail.getSubtotal());
             totalItems += detail.getAmount();

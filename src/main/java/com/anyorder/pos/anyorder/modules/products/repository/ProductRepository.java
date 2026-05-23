@@ -14,31 +14,31 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Optional<Product> findByName(String name);
 
-    boolean existsByIdCategoryAndName(Integer idCategory, String name);
+    boolean existsByCategory_IdCategoryAndName(Integer idCategory, String name);
 
-    boolean existsByIdCategoryAndNameAndIdProductNot(Integer idCategory, String name, Integer idProduct);
+    boolean existsByCategory_IdCategoryAndNameAndIdProductNot(Integer idCategory, String name, Integer idProduct);
 
     List<Product> findByStateTrue();
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.area WHERE p.state = true")
     List<Product> findAllActiveWithDetails();
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.presentations WHERE p.idCategory = :idCategory")
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.presentations WHERE p.category.idCategory = :idCategory")
     List<Product> findByCategoryWithDetails(@Param("idCategory") Integer idCategory);
 
-    List<Product> findByIdCategoryAndStateTrue(Integer idCategory);
+    List<Product> findByCategory_IdCategoryAndStateTrue(Integer idCategory);
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.presentations WHERE p.idArea = :idArea")
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.presentations WHERE p.area.idArea = :idArea")
     List<Product> findByAreaWithDetails(@Param("idArea") Integer idArea);
 
-    List<Product> findByIdAreaAndStateTrue(Integer idArea);
+    List<Product> findByArea_IdAreaAndStateTrue(Integer idArea);
 
     List<Product> findByNameContainingIgnoreCase(String name);
 
-    long countByIdCategoryAndStateTrue(Integer idCategory);
+    long countByCategory_IdCategoryAndStateTrue(Integer idCategory);
 
-    long countByIdArea(Integer idArea);
+    long countByArea_IdArea(Integer idArea);
 
-    @Query("SELECT p.idProduct FROM Product p WHERE p.idCategory = :idCategory")
+    @Query("SELECT p.idProduct FROM Product p WHERE p.category.idCategory = :idCategory")
     List<Integer> findIdsByCategory(@Param("idCategory") Integer idCategory);
 }

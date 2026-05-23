@@ -1,6 +1,7 @@
 package com.anyorder.pos.anyorder.modules.sunat.service;
 
 import com.anyorder.pos.anyorder.modules.sunat.model.SunatData;
+import com.anyorder.pos.anyorder.modules.sunat.model.SunatResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -34,11 +35,11 @@ public class SunatService {
 
         try {
             log.info("Consultando SUNAT para RUC: {}", ruc);
-            ResponseEntity<SunatData> response = restTemplate.exchange(
-                    finalUrl, HttpMethod.GET, entity, SunatData.class);
+            ResponseEntity<SunatResponse> response = restTemplate.exchange(
+                    finalUrl, HttpMethod.GET, entity, SunatResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return response.getBody();
+                return response.getBody().getResult();
             } else {
                 log.warn("SUNAT retornó estado: {}", response.getStatusCode());
                 return null;

@@ -1,19 +1,18 @@
 package com.anyorder.pos.anyorder.modules.tables.model;
 
 import com.anyorder.pos.anyorder.modules.areas.model.Area;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "TABLES")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tables {
@@ -23,30 +22,18 @@ public class Tables {
     @Column(name = "ID_TABLE")
     private Integer idTable;
 
-    @NotBlank
+    @NotBlank(message = "El nombre de la mesa es obligatorio")
     @Size(min = 2, max = 50)
     @Column(name = "NAME", nullable = false, unique = true)
-    private String name;
+    private String nameTable;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @NotNull(message = "El área es obligatoria")
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_AREA", nullable = false)
+    @JsonIgnoreProperties("tables")
     private Area area;
 
-    @JsonProperty("idArea")
-    public void setIdArea(Integer idArea) {
-        if (idArea != null) {
-            this.area = new Area();
-            this.area.setIdArea(idArea);
-        }
-    }
-
-    @JsonProperty("idArea")
-    public Integer getIdArea() {
-        return area != null ? area.getIdArea() : null;
-    }
-
-    @NotNull
+    @NotNull(message = "La capacidad es obligatoria")
     @Min(1)
     @Max(50)
     @Column(name = "CAPACITY", nullable = false)
@@ -57,10 +44,8 @@ public class Tables {
     @Column(name = "CURRENT_OCCUPANCY", nullable = false)
     private Integer currentOccupancy = 0;
 
-    @NotBlank
-    @Size(min = 2, max = 50)
     @Column(name = "LOCATION", nullable = false)
-    private String location;
+    private String location = "General";
 
     @Column(name = "QR_CODE", unique = true)
     private String qrCode;
@@ -75,6 +60,7 @@ public class Tables {
     private Boolean isOccupied = false;
 
     @Column(name = "OCCUPIED_SINCE")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime occupiedSince;
 
     @PrePersist
@@ -85,5 +71,24 @@ public class Tables {
             throw new IllegalArgumentException(
                     "La ocupación actual no puede exceder la capacidad");
         }
+    }
+
+
+    // Compatibility methods for Service/Repository
+    public String getName() {
+        return nameTable;
+    }
+
+    public void setName(String name) {
+        this.nameTable = name;
+    }
+
+    public Integer getIdArea() {
+        return area != null ? area.getIdArea() : null;
+    }
+
+    public void setIdArea(Integer idArea) {
+        if (this.area == null) this.area = new Area();
+        this.area.setIdArea(idArea);
     }
 }

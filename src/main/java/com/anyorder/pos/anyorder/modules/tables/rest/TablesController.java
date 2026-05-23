@@ -44,66 +44,38 @@ public class TablesController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTable(@Valid @RequestBody Tables table) {
-        try {
-            Tables newTable = tablesService.create(table);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newTable);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Tables> createTable(@Valid @RequestBody Tables table) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(tablesService.create(table));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTable(
-            @PathVariable Integer id,
-            @Valid @RequestBody Tables table) {
-        try {
-            Tables updatedTable = tablesService.update(id, table);
-            return ResponseEntity.ok(updatedTable);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(createErrorResponse(e.getMessage()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Tables> updateTable(@PathVariable Integer id, @Valid @RequestBody Tables table) {
+        return ResponseEntity.ok(tablesService.update(id, table));
     }
 
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<?> deactivateTable(@PathVariable Integer id) {
-        try {
-            tablesService.delete(id);
-            return ResponseEntity.ok(createSuccessResponse("Mesa desactivada exitosamente"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse(e.getMessage()));
-        }
+        tablesService.delete(id);
+        return ResponseEntity.ok(createSuccessResponse("Mesa desactivada exitosamente"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> hardDeleteTable(@PathVariable Integer id) {
+        tablesService.hardDelete(id);
+        return ResponseEntity.ok(createSuccessResponse("Mesa eliminada permanentemente"));
     }
 
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<?> activateTable(@PathVariable Integer id) {
-        try {
-            Tables table = tablesService.activate(id);
-            return ResponseEntity.ok(table);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Tables> activateTable(@PathVariable Integer id) {
+        return ResponseEntity.ok(tablesService.activate(id));
     }
 
     @PatchMapping("/{id}/occupancy")
-    public ResponseEntity<?> updateOccupancy(
+    public ResponseEntity<Tables> updateOccupancy(
             @PathVariable Integer id,
             @RequestParam Boolean isOccupied,
             @RequestParam Integer currentOccupancy) {
-        try {
-            Tables table = tablesService.updateOccupancy(id, isOccupied, currentOccupancy);
-            return ResponseEntity.ok(table);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(tablesService.updateOccupancy(id, isOccupied, currentOccupancy));
     }
 
     private Map<String, String> createErrorResponse(String message) {

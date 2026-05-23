@@ -56,7 +56,7 @@ public class ProductService {
     }
 
     public List<Product> findActiveByCategoryId(Integer idCategory) {
-        return productRepository.findByIdCategoryAndStateTrue(idCategory);
+        return productRepository.findByCategory_IdCategoryAndStateTrue(idCategory);
     }
 
     public List<Product> findByArea(Integer idArea) {
@@ -64,15 +64,15 @@ public class ProductService {
     }
 
     public List<Product> findActiveByAreaId(Integer idArea) {
-        return productRepository.findByIdAreaAndStateTrue(idArea);
+        return productRepository.findByArea_IdAreaAndStateTrue(idArea);
     }
 
     public long countByCategory(Integer idCategory) {
-        return productRepository.countByIdCategoryAndStateTrue(idCategory);
+        return productRepository.countByCategory_IdCategoryAndStateTrue(idCategory);
     }
 
     public long countByArea(Integer idArea) {
-        return productRepository.countByIdArea(idArea);
+        return productRepository.countByArea_IdArea(idArea);
     }
 
     @Transactional
@@ -83,10 +83,11 @@ public class ProductService {
         if (!areaRepository.existsById(product.getIdArea())) {
             throw new IllegalArgumentException("El área con ID " + product.getIdArea() + " no existe");
         }
-        if (productRepository.existsByIdCategoryAndName(product.getIdCategory(), product.getName())) {
+        if (productRepository.existsByCategory_IdCategoryAndName(product.getIdCategory(), product.getName())) {
             throw new IllegalArgumentException("Ya existe un producto con ese nombre en esta categoría");
         }
-        if (product.getState() == null) product.setState(true);
+        if (product.getState() == null)
+            product.setState(true);
         return productRepository.save(product);
     }
 
@@ -104,7 +105,7 @@ public class ProductService {
 
         if (!product.getName().equals(productDetails.getName()) ||
                 !product.getIdCategory().equals(productDetails.getIdCategory())) {
-            if (productRepository.existsByIdCategoryAndNameAndIdProductNot(
+            if (productRepository.existsByCategory_IdCategoryAndNameAndIdProductNot(
                     productDetails.getIdCategory(),
                     productDetails.getName(),
                     id)) {
@@ -162,7 +163,7 @@ public class ProductService {
     }
 
     public boolean existsByNameInCategory(Integer idCategory, String name) {
-        return productRepository.existsByIdCategoryAndName(idCategory, name);
+        return productRepository.existsByCategory_IdCategoryAndName(idCategory, name);
     }
 
     private void deactivatePresentation(Integer presentationId) {

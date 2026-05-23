@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "ROLES")
@@ -50,6 +51,7 @@ public class Role {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @ManyToMany(fetch = FetchType.LAZY)

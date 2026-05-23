@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -31,8 +32,8 @@ public class ReservationController {
 
     @GetMapping("/range")
     public ResponseEntity<List<Reservation>> getByRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end) {
         return ResponseEntity.ok(reservationService.findByDateRange(start, end));
     }
 
@@ -42,8 +43,17 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> create(@Valid @RequestBody Reservation reservation) {
-        return ResponseEntity.status(201).body(reservationService.create(reservation));
+    public ResponseEntity<?> create(@Valid @RequestBody Reservation reservation) {
+        Reservation created = reservationService.create(reservation);
+        return ResponseEntity.status(201).body(Map.of(
+            "message", "Reserva creada correctamente",
+            "data", created
+        ));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reservation> update(@PathVariable Integer id, @Valid @RequestBody Reservation reservation) {
+        return ResponseEntity.ok(reservationService.update(id, reservation));
     }
 
     @PatchMapping("/{id}/status")
@@ -54,8 +64,8 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancel(@PathVariable Integer id) {
+    public ResponseEntity<?> cancel(@PathVariable Integer id) {
         reservationService.cancel(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("message", "Reserva cancelada correctamente"));
     }
 }

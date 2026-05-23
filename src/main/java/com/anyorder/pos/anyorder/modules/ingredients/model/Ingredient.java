@@ -4,18 +4,19 @@ import com.anyorder.pos.anyorder.modules.suppliers.model.Supplier;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "INGREDIENTS")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ingredient {
@@ -61,15 +62,23 @@ public class Ingredient {
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
     @NotNull(message = "El proveedor es obligatorio")
-    @Column(name = "ID_SUPPLIER", nullable = false)
-    private Integer idSupplier;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_SUPPLIER", insertable = false, updatable = false)
-    @JsonBackReference("supplier-ingredients")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_SUPPLIER", nullable = false)
+    @JsonIgnoreProperties("ingredients")
     private Supplier supplier;
 
+    // Compatibility methods for Service/Repository
+    public Integer getIdSupplier() {
+        return supplier != null ? supplier.getIdSupplier() : null;
+    }
+
+    public void setIdSupplier(Integer idSupplier) {
+        if (this.supplier == null) this.supplier = new Supplier();
+        this.supplier.setIdSupplier(idSupplier);
+    }
+
     @Column(name = "EXPIRATION_DATE")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expirationDate;
 
     @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
@@ -80,5 +89,6 @@ public class Ingredient {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

@@ -15,6 +15,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Representa una venta cerrada.
@@ -61,6 +62,7 @@ public class Sale {
 
     @CreationTimestamp
     @Column(name = "SALE_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime saleDate;
 
     @NotNull

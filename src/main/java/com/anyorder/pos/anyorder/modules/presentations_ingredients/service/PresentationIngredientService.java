@@ -33,6 +33,20 @@ public class PresentationIngredientService {
 
     @Transactional
     public PresentationIngredient save(PresentationIngredient presentationIngredient) {
+        if (presentationIngredient.getPresentation() == null || presentationIngredient.getPresentation().getIdPresentation() == null) {
+            throw new IllegalArgumentException("La presentación y su ID son obligatorios.");
+        }
+        if (presentationIngredient.getIngredient() == null || presentationIngredient.getIngredient().getIdIngredient() == null) {
+            throw new IllegalArgumentException("El ingrediente y su ID son obligatorios.");
+        }
+
+        // Sincronizar ID compuesto para que Hibernate pueda trabajar
+        if (presentationIngredient.getId() == null) {
+            presentationIngredient.setId(new PresentationIngredientId());
+        }
+        presentationIngredient.getId().setIdPresentation(presentationIngredient.getPresentation().getIdPresentation());
+        presentationIngredient.getId().setIdIngredient(presentationIngredient.getIngredient().getIdIngredient());
+
         if (!presentationRepository.existsById(presentationIngredient.getId().getIdPresentation())) {
             throw new IllegalArgumentException("La presentación no existe.");
         }

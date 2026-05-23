@@ -25,5 +25,5 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Integer>
     List<Ingredient> findByStateTrue();
     
     @EntityGraph(attributePaths = {"supplier"})
-    List<Ingredient> findByIdSupplier(Integer idSupplier);
+    List<Ingredient> findBySupplier_IdSupplier(Integer idSupplier);
 }

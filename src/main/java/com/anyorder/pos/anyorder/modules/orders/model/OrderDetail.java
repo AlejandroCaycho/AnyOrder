@@ -38,12 +38,10 @@ public class OrderDetail {
     @Column(name = "AMOUNT", nullable = false)
     private Integer amount;
 
-    @NotNull(message = "El precio unitario es obligatorio")
     @DecimalMin(value = "0.0")
     @Column(name = "UNIT_PRICE", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @NotNull(message = "El subtotal es obligatorio")
     @DecimalMin(value = "0.0")
     @Column(name = "SUBTOTAL", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;

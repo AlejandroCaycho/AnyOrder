@@ -30,4 +30,9 @@ public interface AreaRepository extends JpaRepository<Area, Integer> {
 
     @Query("SELECT COUNT(t) FROM Tables t WHERE t.area.idArea = :idArea")
     long countTablesByArea(@Param("idArea") Integer idArea);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query("UPDATE Tables t SET t.state = false WHERE t.area.idArea = :idArea")
+    void deactivateTablesByArea(@Param("idArea") Integer idArea);
 }

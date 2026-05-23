@@ -55,11 +55,17 @@ public class AreaService {
             throw new IllegalArgumentException("Ya existe otra área con el nombre: " + areaDetails.getNameArea());
         }
 
+        boolean previousState = area.getState();
         area.setNameArea(areaDetails.getNameArea());
         area.setDescription(areaDetails.getDescription());
         area.setState(areaDetails.getState());
 
-        log.info("Actualizando área ID {}: {}", id, area.getNameArea());
+        // Regla: Si el área se desactiva, todas sus mesas se desactivan automáticamente
+        if (previousState && !area.getState()) {
+            deactivateAssociatedTables(id);
+        }
+
+        log.info("Actualizando área ID {}: {}. Estado: {}", id, area.getNameArea(), area.getState());
         return areaRepository.save(area);
     }
 
@@ -68,12 +74,20 @@ public class AreaService {
         Area area = areaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Área no encontrada con ID: " + id));
         
-        // Logical delete validation
-        validateAreaUsage(id);
+        // Al desactivar lógicamente, solo validamos usuarios y productos
+        // No bloqueamos por mesas porque las vamos a desactivar automáticamente
+        validateAreaUsageMinimal(id);
         
         area.setState(false);
+        deactivateAssociatedTables(id);
+        
         areaRepository.save(area);
-        log.info("Área ID {} desactivada (borrado lógico)", id);
+        log.info("Área ID {} desactivada y sus mesas asociadas", id);
+    }
+
+    private void deactivateAssociatedTables(Integer idArea) {
+        log.info("Desactivando automáticamente todas las mesas del área ID: {}", idArea);
+        areaRepository.deactivateTablesByArea(idArea);
     }
 
     @Transactional
@@ -81,7 +95,8 @@ public class AreaService {
         if (!areaRepository.existsById(id)) {
             throw new RuntimeException("Área no encontrada con ID: " + id);
         }
-        validateAreaUsage(id);
+        // Para eliminación física sí validamos todo, incluyendo mesas
+        validateAreaUsageFull(id);
         areaRepository.deleteById(id);
         log.info("Área ID {} eliminada permanentemente", id);
     }
@@ -111,20 +126,23 @@ public class AreaService {
         }).collect(Collectors.toList());
     }
 
-    private void validateAreaUsage(Integer idArea) {
+    private void validateAreaUsageMinimal(Integer idArea) {
         long userCount = areaRepository.countUsersByArea(idArea);
         if (userCount > 0) {
-            throw new IllegalStateException("No se puede eliminar el área porque tiene " + userCount + " usuarios asociados");
+            throw new IllegalStateException("No se puede desactivar el área porque tiene " + userCount + " usuarios asociados");
         }
         
         long productCount = areaRepository.countProductsByArea(idArea);
         if (productCount > 0) {
-            throw new IllegalStateException("No se puede eliminar el área porque tiene " + productCount + " productos asociados");
+            throw new IllegalStateException("No se puede desactivar el área porque tiene " + productCount + " productos asociados");
         }
+    }
 
+    private void validateAreaUsageFull(Integer idArea) {
+        validateAreaUsageMinimal(idArea);
         long tableCount = areaRepository.countTablesByArea(idArea);
         if (tableCount > 0) {
-            throw new IllegalStateException("No se puede eliminar el área porque tiene " + tableCount + " mesas asociadas");
+            throw new IllegalStateException("No se puede eliminar permanentemente el área porque tiene " + tableCount + " mesas asociadas");
         }
     }
 }

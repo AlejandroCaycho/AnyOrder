@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @org.springframework.boot.context.properties.EnableConfigurationProperties(com.anyorder.pos.anyorder.config.ExternalConfig.class)
 public class AnyorderApplication {
 	public static void main(String[] args) {
-		// Carga manual de .env para asegurar disponibilidad de variables
 		Dotenv dotenv = Dotenv.configure()
 				.ignoreIfMissing()
 				.load();

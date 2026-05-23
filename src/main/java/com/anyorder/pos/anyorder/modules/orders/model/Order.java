@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "ORDERS")
@@ -38,9 +39,9 @@ public class Order {
 
     @CreationTimestamp
     @Column(name = "ORDER_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;
 
-    @NotNull(message = "El estado de la orden es obligatorio")
     @Enumerated(EnumType.STRING)
     @Column(name = "ORDER_STATUS", nullable = false)
     private OrderStatus orderStatus;
@@ -54,12 +55,10 @@ public class Order {
     @JoinColumn(name = "ID_TABLE")
     private Tables table;
 
-    @NotNull(message = "El total es obligatorio")
     @DecimalMin(value = "0.0")
     @Column(name = "TOTAL", nullable = false, precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
-    @NotNull(message = "El total de ítems es obligatorio")
     @Min(0)
     @Max(500)
     @Column(name = "TOTAL_ITEMS", nullable = false)

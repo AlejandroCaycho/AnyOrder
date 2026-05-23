@@ -56,56 +56,30 @@ public class AreaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Area area) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(areaService.create(area));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Area> create(@Valid @RequestBody Area area) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(areaService.create(area));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @RequestBody Area area) {
-        try {
-            return ResponseEntity.ok(areaService.update(id, area));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Area> update(@PathVariable Integer id, @Valid @RequestBody Area area) {
+        return ResponseEntity.ok(areaService.update(id, area));
     }
 
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<?> deactivate(@PathVariable Integer id) {
-        try {
-            areaService.delete(id);
-            return ResponseEntity.ok(createSuccessResponse("Área desactivada exitosamente"));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        }
+        areaService.delete(id);
+        return ResponseEntity.ok(createSuccessResponse("Área desactivada exitosamente"));
     }
 
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<?> activate(@PathVariable Integer id) {
-        try {
-            return ResponseEntity.ok(areaService.activate(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        }
+    public ResponseEntity<Area> activate(@PathVariable Integer id) {
+        return ResponseEntity.ok(areaService.activate(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> hardDelete(@PathVariable Integer id) {
-        try {
-            areaService.hardDelete(id);
-            return ResponseEntity.ok(createSuccessResponse("Área eliminada permanentemente"));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        }
+        areaService.hardDelete(id);
+        return ResponseEntity.ok(createSuccessResponse("Área eliminada permanentemente"));
     }
 
     private Map<String, String> createErrorResponse(String message) {

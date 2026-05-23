@@ -4,33 +4,32 @@ import com.anyorder.pos.anyorder.modules.presentations.model.Presentation;
 import com.anyorder.pos.anyorder.modules.ingredients.model.Ingredient;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "PRESENTATION_INGREDIENTS")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PresentationIngredient {
 
     @EmbeddedId
-    private PresentationIngredientId id;
+    private PresentationIngredientId id = new PresentationIngredientId();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idPresentation")
     @JoinColumn(name = "ID_PRESENTATION")
-    @JsonBackReference("presentation-ingredients")
+    @JsonIgnoreProperties("presentationIngredients")
     private Presentation presentation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idIngredient")
     @JoinColumn(name = "ID_INGREDIENT")
-    @JsonBackReference("ingredient-presentations")
+    @JsonIgnoreProperties("presentationIngredients")
     private Ingredient ingredient;
 
     @NotNull(message = "La cantidad es obligatoria")

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Representa una reservación de mesa por un cliente.
@@ -42,6 +43,7 @@ public class Reservation {
 
     @NotNull(message = "La fecha de reservación es obligatoria")
     @Column(name = "RESERVATION_DATE", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservationDate;
 
     @NotNull(message = "El número de personas es obligatorio")
@@ -76,6 +78,7 @@ public class Reservation {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @Column(name = "NOTES", columnDefinition = "TEXT")

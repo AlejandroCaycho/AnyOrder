@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Orden de compra a proveedor.
@@ -55,13 +56,16 @@ public class PurchaseOrder {
     private User user;
 
     @Column(name = "ORDER_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;
 
     @NotNull(message = "La fecha de entrega estimada es obligatoria")
     @Column(name = "DELIVERY_DATE", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate deliveryDate;
 
     @Column(name = "RECEIVED_DATE")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime receivedDate;
 
     @DecimalMin(value = "0.0")
@@ -84,6 +88,7 @@ public class PurchaseOrder {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,6 +1,7 @@
 package com.anyorder.pos.anyorder.modules.reniec.service;
 
 import com.anyorder.pos.anyorder.modules.reniec.model.ReniecData;
+import com.anyorder.pos.anyorder.modules.reniec.model.ReniecResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -34,11 +35,11 @@ public class ReniecService {
 
         try {
             log.info("Consultando RENIEC para DNI: {}", dni);
-            ResponseEntity<ReniecData> response = restTemplate.exchange(
-                    finalUrl, HttpMethod.GET, entity, ReniecData.class);
+            ResponseEntity<ReniecResponse> response = restTemplate.exchange(
+                    finalUrl, HttpMethod.GET, entity, ReniecResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return response.getBody();
+                return response.getBody().getResult();
             } else {
                 log.warn("RENIEC retornó estado: {}", response.getStatusCode());
                 return null;

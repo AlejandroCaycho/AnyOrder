@@ -3,18 +3,18 @@ package com.anyorder.pos.anyorder.modules.presentations.model;
 import com.anyorder.pos.anyorder.modules.products.model.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "PRESENTATIONS")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Presentation {
@@ -25,12 +25,9 @@ public class Presentation {
     private Integer idPresentation;
 
     @NotNull(message = "El producto es obligatorio")
-    @Column(name = "ID_PRODUCT", nullable = false)
-    private Integer idProduct;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_PRODUCT", insertable = false, updatable = false)
-    @JsonBackReference("product-presentations")
+    @JoinColumn(name = "ID_PRODUCT", nullable = false)
+    @JsonIgnoreProperties("presentations")
     private Product product;
 
     @NotBlank(message = "El nombre es obligatorio")
@@ -77,5 +74,16 @@ public class Presentation {
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
+    // Compatibility methods for Service/Repository
+    public Integer getIdProduct() {
+        return product != null ? product.getIdProduct() : null;
+    }
+
+    public void setIdProduct(Integer idProduct) {
+        if (this.product == null) this.product = new Product();
+        this.product.setIdProduct(idProduct);
+    }
 }

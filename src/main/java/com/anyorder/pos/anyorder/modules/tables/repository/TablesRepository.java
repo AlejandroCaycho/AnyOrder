@@ -9,8 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface TablesRepository extends JpaRepository<Tables, Integer> {
-    Optional<Tables> findByName(String name);
-    boolean existsByName(String name);
+    Optional<Tables> findByNameTable(String nameTable);
+    boolean existsByNameTable(String nameTable);
     List<Tables> findByStateTrue();
     List<Tables> findByArea_IdArea(Integer idArea);
     Optional<Tables> findByQrCode(String qrCode);

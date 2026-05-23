@@ -46,6 +46,14 @@ public class CustomerController {
                         .body(createErrorResponse("Cliente no encontrado")));
     }
 
+    @GetMapping("/phone/{phone}")
+    public ResponseEntity<?> getCustomerByPhone(@PathVariable String phone) {
+        return customerService.findByPhone(phone)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Cliente no encontrado con teléfono: " + phone)));
+    }
+
     @PostMapping
     public ResponseEntity<?> createCustomer(@Valid @RequestBody Customer customer) {
         try {

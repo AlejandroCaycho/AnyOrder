@@ -23,4 +23,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @EntityGraph(attributePaths = {"role"})
     List<Customer> findByStateTrue();
+
+    @EntityGraph(attributePaths = {"role"})
+    Optional<Customer> findByPhone(String phone);
 }
